@@ -2,7 +2,7 @@
     {
       "id": 1,
       "name": "Airdrop Contract",
-      "value": "0xEb66179e73804883Bba748Bcc75897fcEFF4Eb5B"
+      "value": "0xfd21d3cC2891e25a2A25acE24BFB0aF8277eE650"
     },
     {
       "id": 2,
@@ -22,7 +22,7 @@
     {
       "id": 5,
       "name": "Token Contract",
-      "value": "0x53a3bE470d8B8255c9Ed5015C5b953F574b2Ce86"
+      "value": "0x6D419aeEdA0E4AF16FCeb000BA7A7eDbe84882a8"
     },
     {
       "id": 6,
@@ -32,7 +32,7 @@
     {
       "id": 7,
       "name": "Airdrop Amount",
-      "value": "100"
+      "value": "100000"
     }
     
   ]
