@@ -7,17 +7,17 @@
     {
       "id": 2,
       "name": "Airdrop Fee in Wei",
-      "value": "1000000000000000"
+      "value": "2400000000000000"
     },
     {
       "id": 3,
       "name": "Title",
-      "value": "0xFactory Demo Airdrop"
+      "value": "Indowealth Token Drop"
     },
     {
       "id": 4,
       "name": "Description",
-      "value": "ZXF token is the cryptocurrency that powers the 0xFactory platform, you can use ZXF in a wide range of applications and use cases."
+      "value": "Indowealth token is a token that can be used on any cryptocurrency trading platform when listed, queue in, claim IWT and join as we about to be listed on Bitmart."
     },
     {
       "id": 5,
@@ -27,7 +27,7 @@
     {
       "id": 6,
       "name": "Token Symbol",
-      "value": "ZXF"
+      "value": "IWT"
     },
     {
       "id": 7,
