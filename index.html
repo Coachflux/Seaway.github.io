@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NEB Airdrop</title>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: #1e293b;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.5);
+      text-align: center;
+      max-width: 350px;
+      width: 90%;
+    }
+    button {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 10px 0;
+      transition: 0.2s;
+    }
+    button:hover {
+      background: #2563eb;
+    }
+    #status {
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    .balances {
+      margin-top: 15px;
+      text-align: left;
+      background: #334155;
+      padding: 12px;
+      border-radius: 8px;
+    }
+    .fee {
+      margin-top: 8px;
+      font-size: 14px;
+      color: #fbbf24;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🚀 NEB Airdrop</h2>
+    <button id="connectButton">Connect Wallet</button>
+    <button id="claimButton" style="display:none;">Claim 100 NEB</button>
+    <div id="feeDisplay" class="fee" style="display:none;"></div>
+    <div id="status"></div>
+    <div id="balanceBox" class="balances" style="display:none;">
+      <p><strong>BNB Balance:</strong> <span id="bnbBalance">0</span></p>
+      <p><strong>NEB Balance:</strong> <span id="nebBalance">0</span></p>
+    </div>
+  </div>
+
+  <script>
+    const CONTRACT_ADDRESS = "0x3789c9d60bc34715ff2781113701477a4e8185e6";
+    const CONTRACT_ABI = [
+      "function claimAirdrop() external payable",
+      "function balanceOf(address account) external view returns (uint256)",
+      "function feeInWei() public view returns (uint256)"
+    ];
+
+    let provider, signer, contract;
+
+    const connectButton = document.getElementById("connectButton");
+    const claimButton = document.getElementById("claimButton");
+    const status = document.getElementById("status");
+    const balanceBox = document.getElementById("balanceBox");
+    const bnbBalanceEl = document.getElementById("bnbBalance");
+    const nebBalanceEl = document.getElementById("nebBalance");
+    const feeDisplay = document.getElementById("feeDisplay");
+
+    async function connectWallet() {
+      if (typeof window.ethereum === "undefined") {
+        alert("MetaMask is not installed!");
+        return;
+      }
+
+      try {
+        await ethereum.request({ method: "eth_requestAccounts" });
+        provider = new ethers.providers.Web3Provider(window.ethereum);
+        signer = provider.getSigner();
+        contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+        connectButton.style.display = "none";
+        claimButton.style.display = "block";
+        balanceBox.style.display = "block";
+        feeDisplay.style.display = "block";
+
+        updateBalances();
+        updateFee();
+      } catch (err) {
+        console.error(err);
+        status.textContent = "❌ Wallet connection failed.";
+      }
+    }
+
+    async function updateBalances() {
+      try {
+        const address = await signer.getAddress();
+        const bnbBal = await provider.getBalance(address);
+        const nebBal = await contract.balanceOf(address);
+
+        bnbBalanceEl.textContent = parseFloat(
+          ethers.utils.formatEther(bnbBal)
+        ).toFixed(4) + " BNB";
+        nebBalanceEl.textContent = parseFloat(
+          ethers.utils.formatUnits(nebBal, 18)
+        ).toFixed(2) + " NEB";
+      } catch (err) {
+        console.error("Balance fetch failed", err);
+      }
+    }
+
+    async function updateFee() {
+      try {
+        const fee = await contract.feeInWei();
+        const feeInBNB = ethers.utils.formatEther(fee);
+        feeDisplay.textContent = `⚡ Claim Fee: ${parseFloat(feeInBNB).toFixed(5)} BNB`;
+      } catch (err) {
+        console.error("Fee fetch failed", err);
+      }
+    }
+
+    async function claimAirdrop() {
+      try {
+        status.textContent = "⏳ Processing claim...";
+        const fee = await contract.feeInWei();
+
+        const tx = await contract.claimAirdrop({ value: fee });
+        await tx.wait();
+
+        status.textContent = "✅ Successfully claimed 100 NEB!";
+        updateBalances();
+      } catch (err) {
+        console.error(err);
+        status.textContent = "❌ Claim failed.";
+      }
+    }
+
+    connectButton.onclick = connectWallet;
+    claimButton.onclick = claimAirdrop;
+  </script>
+</body>
+</html>
