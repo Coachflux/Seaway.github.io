@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NEB Airdrop Claim</title>
+  <script type="module" crossorigin src="https://esm.sh/thirdweb@5"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    .card {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 400px;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 16px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    #status {
+      margin-top: 16px;
+      font-size: 14px;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Claim 100 NEB Tokens</h2>
+    <button id="connect">Connect Wallet</button>
+    <button id="claim" style="display:none;">Claim Airdrop</button>
+    <div id="status"></div>
+  </div>
+
+  <script type="module">
+    import { createThirdwebClient, getContract, resolveMethod } from "https://esm.sh/thirdweb@5";
+    import { defineChain } from "https://esm.sh/thirdweb/chains";
+
+    // create client
+    const client = createThirdwebClient({
+      clientId: "YOUR_CLIENT_ID", // replace with your clientId
+    });
+
+    // connect to contract
+    const contract = getContract({
+      client,
+      chain: defineChain(56), // BNB Chain mainnet
+      address: "0x65282B3EE25f216fa509669eC6C853eFf4863729", // your contract
+    });
+
+    let wallet;
+
+    const connectBtn = document.getElementById("connect");
+    const claimBtn = document.getElementById("claim");
+    const status = document.getElementById("status");
+
+    async function connectWallet() {
+      if (!window.ethereum) {
+        status.textContent = "Please install MetaMask!";
+        return;
+      }
+      try {
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        wallet = accounts[0];
+        status.textContent = "Connected: " + wallet;
+        connectBtn.style.display = "none";
+        claimBtn.style.display = "inline-block";
+      } catch (err) {
+        status.textContent = "Connection failed: " + err.message;
+      }
+    }
+
+    async function claimAirdrop() {
+      try {
+        status.textContent = "Claiming tokens...";
+        const tx = await contract.write(
+          resolveMethod("claim"),
+          [wallet, "100000000000000000000"] // adjust decimals (100 tokens if 18 decimals)
+        );
+        status.textContent = "Transaction sent: " + tx.transactionHash;
+      } catch (err) {
+        status.textContent = "Claim failed: " + err.message;
+      }
+    }
+
+    connectBtn.addEventListener("click", connectWallet);
+    claimBtn.addEventListener("click", claimAirdrop);
+  </script>
+</body>
+</html>
